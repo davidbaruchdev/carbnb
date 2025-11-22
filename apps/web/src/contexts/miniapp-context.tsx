@@ -80,7 +80,7 @@ export function MiniAppProvider({ children, addMiniAppOnLoad }: MiniAppProviderP
 
   return (
     <MiniAppContext.Provider
-      value=\{{
+      value={{
         isMiniAppReady,
         setMiniAppReady,
         addMiniApp: handleAddMiniApp,
