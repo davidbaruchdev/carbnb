@@ -144,7 +144,7 @@ useEffect(() => {
         ) : (
       <button
         onClick={() => {
-          alert("Click detected! Connectors: " + connectors.length);
+          console.log("Click detected! Connectors: " + connectors.length);
           if (connectors.length > 0) {
             connect({ connector: connectors[1] || connectors[0] });
           }
