@@ -1,3 +1,4 @@
+import "dotenv/config";
 import type { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox-viem";
 
@@ -14,42 +15,24 @@ const config: HardhatUserConfig = {
   networks: {
     celo: {
       url: "https://forno.celo.org",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: {
+        mnemonic: process.env.MNEMONIC || "",
+        path: "m/44'/52752'/0'/0",
+      },
       chainId: 42220,
     },
-    "celo-sepolia": {
-      url: "https://alfajores-forno.celo-testnet.org",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      chainId: 44787,
+    celoSepolia: {
+      url: "https://forno.celo-sepolia.celo-testnet.org/",
+      accounts: {
+        mnemonic: process.env.MNEMONIC || "",
+        path: "m/44'/52752'/0'/0",
+      },
+      chainId: 11142220,
     },
     localhost: {
       url: "http://127.0.0.1:8545",
       chainId: 31337,
     },
-  },
-  etherscan: {
-    apiKey: {
-      celo: process.env.ETHERSCAN_API_KEY || "",
-      "celo-sepolia": process.env.ETHERSCAN_API_KEY || "",
-    },
-    customChains: [
-      {
-        network: "celo",
-        chainId: 42220,
-        urls: {
-          apiURL: "https://api.celoscan.io/api",
-          browserURL: "https://celoscan.io",
-        },
-      },
-      {
-        network: "celo-sepolia",
-        chainId: 44787,
-        urls: {
-          apiURL: "https://api-alfajores.celoscan.io/api",
-          browserURL: "https://alfajores.celoscan.io",
-        },
-      },
-    ],
   },
 };
 
