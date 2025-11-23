@@ -5,10 +5,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode } from "react";
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { celo, celoSepolia } from "wagmi/chains";
+import { injected } from "wagmi/connectors";
 
 const config = createConfig({
-  chains: [celo, celoSepolia],
-  connectors: [farcasterMiniApp()],
+  chains: [celoSepolia, celo],
+  connectors: [
+    farcasterMiniApp(),
+    injected({ target: "metaMask" }),
+  ],
   transports: {
     [celo.id]: http(),
     [celoSepolia.id]: http(),

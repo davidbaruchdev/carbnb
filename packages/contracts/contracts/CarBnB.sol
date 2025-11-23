@@ -27,7 +27,6 @@ contract CarBnB is Ownable {
     // State
     mapping(uint256 => Car) public cars;
     mapping(uint256 => Rental) public rentals;
-    mapping(address => bool) public verifiedUsers;
     
     uint256 public carCounter;
     uint256 public rentalCounter;
@@ -35,31 +34,19 @@ contract CarBnB is Ownable {
     IERC20 public cUSD;
     
     // Events
-    event UserVerified(address indexed user);
     event CarListed(uint256 indexed carId, address indexed owner, string city, uint256 pricePerDay);
-    event CarRented(uint256 indexed rentalId, uint256 indexed carId, address indexed renter);
+    event CarRented(uint256 indexed rentalId, uint256 indexed carId, address indexed renter, uint256 daysToRent);
     event RentalCompleted(uint256 indexed rentalId);
     
     constructor(address _cUSD) Ownable(msg.sender) {
         cUSD = IERC20(_cUSD);
     }
     
-    // Self Protocol will call this after verification
-    function verifyUser(address user) external onlyOwner {
-        verifiedUsers[user] = true;
-        emit UserVerified(user);
-    }
-    
-    modifier onlyVerified() {
-        require(verifiedUsers[msg.sender], "Must be verified");
-        _;
-    }
-    
     function listCar(
         string calldata model,
         string calldata city,
         uint256 pricePerDay
-    ) external onlyVerified returns (uint256) {
+    ) external returns (uint256) {
         uint256 carId = carCounter++;
         
         cars[carId] = Car({
@@ -74,17 +61,19 @@ contract CarBnB is Ownable {
         return carId;
     }
     
-    function rentCar(uint256 carId, uint256 daysToRent) external onlyVerified returns (uint256) {
+    function rentCar(uint256 carId, uint256 daysToRent) external returns (uint256) {
         Car storage car = cars[carId];
         require(car.isAvailable, "Car not available");
         require(car.owner != msg.sender, "Cannot rent own car");
         
         uint256 totalPrice = car.pricePerDay * daysToRent;
         
-        require(
-            cUSD.transferFrom(msg.sender, address(this), totalPrice),
-            "Payment failed"
-        );
+        // DEMO MODE: Payment disabled for testing
+        // In production, uncomment these lines:
+        // require(
+        //     cUSD.transferFrom(msg.sender, address(this), totalPrice),
+        //     "Payment failed"
+        // );
         
         uint256 rentalId = rentalCounter++;
         
@@ -99,7 +88,7 @@ contract CarBnB is Ownable {
         
         car.isAvailable = false;
         
-        emit CarRented(rentalId, carId, msg.sender);
+        emit CarRented(rentalId, carId, msg.sender, daysToRent);
         return rentalId;
     }
     
@@ -116,10 +105,12 @@ contract CarBnB is Ownable {
         rental.isActive = false;
         car.isAvailable = true;
         
-        require(
-            cUSD.transfer(car.owner, rental.totalPrice),
-            "Transfer failed"
-        );
+        // DEMO MODE: Payment disabled for testing
+        // In production, uncomment these lines:
+        // require(
+        //     cUSD.transfer(car.owner, rental.totalPrice),
+        //     "Transfer failed"
+        // );
         
         emit RentalCompleted(rentalId);
     }
@@ -131,9 +122,5 @@ contract CarBnB is Ownable {
     
     function getRental(uint256 rentalId) external view returns (Rental memory) {
         return rentals[rentalId];
-    }
-    
-    function isUserVerified(address user) external view returns (bool) {
-        return verifiedUsers[user];
     }
 }
